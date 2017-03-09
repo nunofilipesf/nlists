@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>nLists Sample: Basic</title>
+
+    <link rel="stylesheet" href="../css/nlists.css">
+</head>
+
+<body>
+
+    <div id="nListContainer"></div>
+
+    <script src="../js/nLists.js"></script>
+
+    <script type="text/javascript">
+        var sampleData = [];
+        for(var i = 0; i < 100; i++){
+            sampleData.push({ Code: 'C0' + i, Name: 'Customer 0' + i });                
+        }
+
+        var t0 = performance.now();
+        
+        var nList = new nList({
+            container: 'nListContainer',
+            pageSize: 5,
+            columns: [
+                {
+                    id: 'Code',
+                    text: 'Code',
+                    sortable: true,
+                    filterable: true
+                },
+                {
+                    id: 'Name',
+                    text: 'Name',
+                    sortable: true,
+                    filterable: true
+                }
+            ],
+            data: sampleData,
+            style:{
+                table: 'table table-color'
+            }
+        });
+
+        var t1 = performance.now();
+        console.log('Performance: ' + (t1 - t0).toFixed(2) + 'ms');
+    </script>
+</body>
+
+</html>
