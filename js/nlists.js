@@ -11,11 +11,8 @@ var nList = function (options) {
 
     this.setDefaultOptions(this._options);
     this.init(this._options);
-    this.loadData(  this._options.table, 
-                    this._options.columns, 
-                    this._options.data, 
-                    this._options.pageSize, 
-                    this._dataSettings.page );
+    this.loadData(  this._options, 
+                    this._dataSettings );
     
 
 }
@@ -39,6 +36,8 @@ nList.prototype.init = function (options) {
     options.id = this.getTableId();
 
     options.table = this.createTableElement(options.id, options.style.table);
+    options.table.nList = this;
+
     this.appendTableToContainer(options.container, options.table);
 
     this.appendColumnHeaders(options.table, options.columns);
@@ -54,6 +53,7 @@ nList.prototype.getTableId = function () {
     return new Date().getTime();
 }
 
+// HTML Render
 nList.prototype.createTableElement = function (id, style) {
     var table = document.createElement('table');
     table.id = id;
@@ -87,10 +87,13 @@ nList.prototype.appendColumnHeaders = function (table, columnHeaders) {
 nList.prototype.createColumnHeader = function (columnDefinition) {
     var column = document.createElement('th');
     column.innerText = columnDefinition.text || '';
+    column.nListColumn = columnDefinition;
 
     if(columnDefinition.filterable){
         column.addEventListener('click', function(event){
-            var table = event.currentTarget;
+            // Get nList data from th > tr > thead > table
+            var columnInfo = event.currentTarget.nListColumn;
+            
         });
     }
 
@@ -104,14 +107,51 @@ nList.prototype.appendBody = function (table) {
 
 nList.prototype.appendFooter = function (table) {
     var tableFooter = document.createElement('tfoot');
+    var tableFooterRow = document.createElement('tr');
+    var tableFooterInfoColumn = document.createElement('td');
+    var tableFooterPaginationColumn = document.createElement('td');
+
+    var tableFooterPaginationPrevious = document.createElement('button');
+    tableFooterPaginationPrevious.innerText = "Previous";
+    tableFooterPaginationPrevious.addEventListener('click', function(event){
+        nList.navigateToPage(-1);
+    });
+
+    var tableFooterPaginationNext = document.createElement('button');
+    tableFooterPaginationNext.innerText = "Next";
+    tableFooterPaginationNext.addEventListener('click', function(event){
+        nList.navigateToPage(1);
+    });
+
+    tableFooterPaginationColumn.append(tableFooterPaginationPrevious);
+    tableFooterPaginationColumn.append(tableFooterPaginationNext);
+    tableFooterRow.append(tableFooterInfoColumn);
+    tableFooterRow.append(tableFooterPaginationColumn);
+    tableFooter.append(tableFooterRow);
     table.append(tableFooter);
 }
 
-nList.prototype.loadData = function (table, columns, data, pageSize, currentPage) {
+nList.prototype.loadData = function (options, dataSettings) {
+    if(typeof this._options.data === 'function'){
+        this._options.data(options, dataSettings, this.renderData.bind(this));
+    }
+    else{
+        this.renderData(this._options.data);
+    }
+}
+
+nList.prototype.renderData = function(data){
+    var table = this._options.table;
+    var columns = this._options.columns;
+    var pageSize = this._options.pageSize;
+    var currentPage = this._dataSettings.page;
+
     var tableBody = table.getElementsByTagName('tbody')[0]
     
     if(tableBody == null)
         this.throwException('Table body not found');
+
+    tableBody.innerHTML = '';
 
     for(var i = (currentPage - 1) * pageSize; i < ((currentPage - 1) * pageSize) + pageSize; i++){
         var tableRow = document.createElement('tr');
@@ -124,4 +164,11 @@ nList.prototype.loadData = function (table, columns, data, pageSize, currentPage
 
         tableBody.append(tableRow);
     }
+}
+
+// Navigation
+nList.prototype.navigateToPage= function(pageNavigationValue){
+    this._dataSettings.page += pageNavigationValue;
+    this.loadData(  this.options, 
+                    this._dataSettings );
 }

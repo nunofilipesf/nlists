@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>nLists Sample: Basic</title>
+    <title>nLists Sample: External data</title>
 
     <link rel="stylesheet" href="../css/nlists.css">
 </head>
@@ -18,13 +18,8 @@
     <script src="../js/nLists.js"></script>
 
     <script type="text/javascript">
-        var sampleData = [];
-        for(var i = 0; i < 100; i++){
-            sampleData.push({ Code: 'C0' + i, Name: 'Customer 0' + i });                
-        }
-
         var t0 = performance.now();
-        
+
         var nList = new nList({
             container: 'nListContainer',
             pageSize: 20,
@@ -42,9 +37,15 @@
                     filterable: true
                 }
             ],
-            data: sampleData,
-            style:{
-                table: 'table table-color'
+            data: function (options, dataSettings, callback) {
+                var sampleData = [];
+                for (var i = 0; i < 100; i++) {
+                    sampleData.push({ Code: 'E0' + i, Name: 'External 0' + i });
+                }
+                callback(sampleData);
+            },
+            style: {
+                table: 'table'
             }
         });
 
