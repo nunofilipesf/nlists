@@ -1,0 +1,9 @@
+
+table.nList th,
+table.nList td {
+    border: 1px black solid;
+}
+
+table.nList.table-color{
+    color: red;
+}
