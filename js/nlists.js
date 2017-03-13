@@ -246,12 +246,13 @@ nList.prototype.renderPaginationButtons = function (options, dataSettings, pagin
     firstPageToRender = firstPageToRender < 1 ? 1 : firstPageToRender;
 
     var lastPageToRender = currentPage + 2;
-    lastPageToRender = lastPageToRender > numberOfPages ? numberOfPages : lastPageToRender;
 
     if(firstPageToRender == 1)
         lastPageToRender = firstPageToRender + 4;
     if(lastPageToRender == numberOfPages)
         firstPageToRender = lastPageToRender - 4;
+
+    lastPageToRender = lastPageToRender > numberOfPages ? numberOfPages : lastPageToRender;
 
     // Render the page buttons
     for (var i = firstPageToRender; i <= lastPageToRender; i++) {
