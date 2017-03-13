@@ -164,7 +164,15 @@ nList.prototype.renderData = function (data) {
 
     tableBody.innerHTML = '';
 
-    for (var i = (currentPage - 1) * pageSize; i < ((currentPage - 1) * pageSize) + pageSize; i++) {
+    var startAt = (currentPage - 1) * pageSize;
+    var endAt = ((currentPage - 1) * pageSize) + pageSize;
+
+    if(this._options.serverSideProcessing === true){
+        startAt = 0;
+        endAt = pageSize;
+    }
+
+    for (var i = startAt; i < endAt; i++) {
         if (data[i] != null) {
             var tableRow = document.createElement('tr');
 
@@ -293,12 +301,12 @@ nList.prototype.disableNavigationButtons = function (currentPage, numberOfPages,
 // Navigation
 nList.prototype.navigateToPage = function (pageNavigationValue) {
     this._dataSettings.page += pageNavigationValue;
-    this.loadData(this.options, this._dataSettings);
+    this.loadData(this._options, this._dataSettings);
     this.renderPagination(this._options, this._dataSettings);
 }
 
 nList.prototype.goToPage = function (pageValue) {
     this._dataSettings.page = pageValue;
-    this.loadData(this.options, this._dataSettings);
+    this.loadData(this._options, this._dataSettings);
     this.renderPagination(this._options, this._dataSettings);
 }
