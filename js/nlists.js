@@ -48,7 +48,7 @@ nList.prototype.init = function (options) {
 
     this.appendColumnHeaders(options.table, options.columns, options.style.header);
     this.appendBody(options.table, options.style.body);
-    this.appendFooter(options.table, options.style.footer, options.style.information, options.style.pagination, options.style.paginationButton);
+    this.appendFooter(options.table, options.columns.length, options.style.footer, options.style.information, options.style.pagination, options.style.paginationButton);
 }
 
 nList.prototype.throwException = function (text) {
@@ -123,13 +123,17 @@ nList.prototype.appendBody = function (table, bodyStyle) {
     table.append(tableBody);
 }
 
-nList.prototype.appendFooter = function (table, footerStyle, footerInfoStyle, footerPaginationStyle, footerPaginationButtonStyle) {
+nList.prototype.appendFooter = function (table, numberOfColumns, footerStyle, footerInfoStyle, footerPaginationStyle, footerPaginationButtonStyle) {
     var tableFooter = document.createElement('tfoot');
     var tableFooterRow = document.createElement('tr');
+
+    var numberOfColumnsDivision = numberOfColumns/2;
     var tableFooterInfoColumn = document.createElement('td');
     tableFooterInfoColumn.className = 'nList-information';
+    tableFooterInfoColumn.setAttribute('colspan', Math.floor(numberOfColumnsDivision));
     var tableFooterPaginationColumn = document.createElement('td');
     tableFooterPaginationColumn.className = 'nList-pagination';
+    tableFooterPaginationColumn.setAttribute('colspan', numberOfColumns - Math.floor(numberOfColumnsDivision));
 
     if (footerStyle)
         tableFooter.className += ' ' + footerStyle;
@@ -187,7 +191,11 @@ nList.prototype.renderData = function (data) {
 
             for (var c = 0; c < columns.length; c++) {
                 var tableColumn = document.createElement('td');
-                tableColumn.innerText = dataToRender[i][columns[c].id];
+                if(columns[c].html === true)
+                    tableColumn.innerHTML = dataToRender[i][columns[c].id];    
+                else
+                    tableColumn.innerText = dataToRender[i][columns[c].id];
+                    
                 tableRow.append(tableColumn);
             }
 

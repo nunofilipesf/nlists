@@ -32,12 +32,12 @@
     <script type="text/javascript">
         var sampleData = [];
         for (var i = 0; i < 205; i++) {
-            sampleData.push({ Code: 'C0' + i, Name: 'Customer 0' + i });
+            sampleData.push({ Code: 'C0' + i, Name: 'Customer 0' + i, Options: '<button>Button 0' + i + '</button>' });
         }
 
         var t0 = performance.now();
 
-        var nList = new nList({
+        var list = new nList({
             container: 'nListContainer',
             pageSize: 20,
             columns: [
@@ -52,6 +52,11 @@
                     text: 'Name',
                     sortable: true,
                     filterable: true
+                },
+                {
+                    id: 'Options',
+                    text: '',
+                    html: true
                 }
             ],
             data: sampleData,
