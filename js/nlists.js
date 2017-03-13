@@ -106,7 +106,7 @@ nList.prototype.createColumnHeader = function (columnDefinition) {
             //                th            tr            thead         table
             var tableList = event.currentTarget.parentElement.parentElement.parentElement.nList;
 
-            columnInfo.sortType = nList.getNextSortType(columnInfo.sortType);
+            columnInfo.sortType = tableList.getNextSortType(columnInfo.sortType);
             tableList.sortBy(columnInfo.id, columnInfo.sortType);
         });
     }
