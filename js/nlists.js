@@ -99,11 +99,15 @@ nList.prototype.createColumnHeader = function (columnDefinition) {
     column.innerText = columnDefinition.text || '';
     column.nListColumn = columnDefinition;
 
-    if (columnDefinition.filterable) {
+    if (columnDefinition.sortable) {
         column.addEventListener('click', function (event) {
-            // Get nList data from th > tr > thead > table
             var columnInfo = event.currentTarget.nListColumn;
 
+            //                th            tr            thead         table
+            var tableList = event.currentTarget.parentElement.parentElement.parentElement.nList;
+
+            columnInfo.sortType = nList.getNextSortType(columnInfo.sortType);
+            tableList.sortBy(columnInfo.id, columnInfo.sortType);
         });
     }
 
@@ -167,24 +171,31 @@ nList.prototype.renderData = function (data) {
     var startAt = (currentPage - 1) * pageSize;
     var endAt = ((currentPage - 1) * pageSize) + pageSize;
 
-    if(this._options.serverSideProcessing === true){
+    var dataToRender = data.slice();
+
+    if (this._options.serverSideProcessing === true) {
         startAt = 0;
         endAt = pageSize;
     }
+    else {
+        dataToRender = this.sortValues(dataToRender, this._dataSettings.sorting);
+    }
 
     for (var i = startAt; i < endAt; i++) {
-        if (data[i] != null) {
+        if (dataToRender[i] != null) {
             var tableRow = document.createElement('tr');
 
             for (var c = 0; c < columns.length; c++) {
                 var tableColumn = document.createElement('td');
-                tableColumn.innerText = data[i][columns[c].id];
+                tableColumn.innerText = dataToRender[i][columns[c].id];
                 tableRow.append(tableColumn);
             }
 
             tableBody.append(tableRow);
         }
     }
+
+    this.renderPagination(this._options, this._dataSettings);
 }
 
 nList.prototype.renderPagination = function (options, dataSettings) {
@@ -247,9 +258,9 @@ nList.prototype.renderPaginationButtons = function (options, dataSettings, pagin
 
     var lastPageToRender = currentPage + 2;
 
-    if(firstPageToRender == 1)
+    if (firstPageToRender == 1)
         lastPageToRender = firstPageToRender + 4;
-    if(lastPageToRender == numberOfPages)
+    if (lastPageToRender == numberOfPages)
         firstPageToRender = lastPageToRender - 4;
 
     lastPageToRender = lastPageToRender > numberOfPages ? numberOfPages : lastPageToRender;
@@ -303,11 +314,78 @@ nList.prototype.disableNavigationButtons = function (currentPage, numberOfPages,
 nList.prototype.navigateToPage = function (pageNavigationValue) {
     this._dataSettings.page += pageNavigationValue;
     this.loadData(this._options, this._dataSettings);
-    this.renderPagination(this._options, this._dataSettings);
 }
 
 nList.prototype.goToPage = function (pageValue) {
     this._dataSettings.page = pageValue;
     this.loadData(this._options, this._dataSettings);
-    this.renderPagination(this._options, this._dataSettings);
+}
+
+// Sorting
+nList.prototype.getNextSortType = function (currentSortType) {
+    if (currentSortType == null || currentSortType === '')
+        return 'asc';
+
+    if (currentSortType === 'asc')
+        return 'desc';
+
+    if (currentSortType === 'desc')
+        return '';
+}
+
+nList.prototype.sortBy = function (column, sortType) {
+    var currentFilterToColumnIndex = -1;
+    for (var i = 0; i < this._dataSettings.sorting.length; i++) {
+        if (this._dataSettings.sorting[i].column == column)
+            currentFilterToColumnIndex = i;
+    }
+
+    if ((sortType == null || sortType === '') && currentFilterToColumnIndex > -1) {
+        // Remove from sorting array
+        this._dataSettings.sorting.splice(currentFilterToColumnIndex, 1);
+    }
+    else {
+        if(currentFilterToColumnIndex > -1)
+            this._dataSettings.sorting[currentFilterToColumnIndex].type = sortType;
+        else
+            // Add to sorting array
+            this._dataSettings.sorting.push({ column: column, type: sortType });
+    }
+
+    this._dataSettings.page = 1;
+    this.loadData(this._options, this._dataSettings);
+}
+
+nList.prototype.sortValues = function (values, sortingDefinition) {
+    if (sortingDefinition == null || sortingDefinition.length == 0)
+        return values;
+
+    var sortingOptions = [];
+    for (var i = 0; i < this._dataSettings.sorting.length; i++) {
+        if (this._dataSettings.sorting[i].type === 'desc')
+            sortingOptions.push('-' + this._dataSettings.sorting[i].column);
+        else
+            sortingOptions.push(this._dataSettings.sorting[i].column);
+    }
+
+    return values.sort(fieldSorter(sortingOptions));
+}
+
+function fieldSorter(fields) {
+    return function (a, b) {
+        return fields
+            .map(function (o) {
+                var dir = 1;
+                if (o[0] === '-') {
+                    dir = -1;
+                    o = o.substring(1);
+                }
+                if (a[o] > b[o]) return dir;
+                if (a[o] < b[o]) return -(dir);
+                return 0;
+            })
+            .reduce(function firstNonZeroValue(p, n) {
+                return p ? p : n;
+            }, 0);
+    };
 }
