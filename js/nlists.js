@@ -96,7 +96,7 @@ nList.prototype.appendColumnHeaders = function (table, columnHeaders, headerStyl
 
 nList.prototype.createColumnHeader = function (columnDefinition) {
     var column = document.createElement('th');
-    column.innerText = columnDefinition.text || '';
+    column.innerHTML = columnDefinition.text || '';
     column.nListColumn = columnDefinition;
 
     if (columnDefinition.sortable) {
@@ -218,7 +218,9 @@ nList.prototype.renderPagination = function (options, dataSettings) {
         tableFooterPaginationPrevious.innerHTML = "&laquo;";
         tableFooterPaginationPrevious.className = "nList-pagination-previous";
         tableFooterPaginationPrevious.addEventListener('click', function (event) {
-            nList.navigateToPage(-1);
+            //                    button        td            tr            tfoot         table
+            var tableList = event.currentTarget.parentElement.parentElement.parentElement.parentElement.nList;
+            tableList.navigateToPage(-1);
         });
 
         if (options.style.paginationButton) {
@@ -234,7 +236,9 @@ nList.prototype.renderPagination = function (options, dataSettings) {
         tableFooterPaginationNext.innerHTML = "&raquo;";
         tableFooterPaginationNext.className = "nList-pagination-next";
         tableFooterPaginationNext.addEventListener('click', function (event) {
-            nList.navigateToPage(1);
+            //                    button        td            tr            tfoot         table
+            var tableList = event.currentTarget.parentElement.parentElement.parentElement.parentElement.nList;
+            tableList.navigateToPage(1);
         });
 
         if (options.style.paginationButton) {
@@ -281,7 +285,9 @@ nList.prototype.renderPaginationButtons = function (options, dataSettings, pagin
         tableFooterPaginationPage.className = "nList-pagination-page";
         tableFooterPaginationPage.pageNumber = page;
         tableFooterPaginationPage.addEventListener('click', function (event) {
-            nList.goToPage(event.currentTarget.pageNumber);
+            //                    button        td            tr            tfoot         table
+            var tableList = event.currentTarget.parentElement.parentElement.parentElement.parentElement.nList;
+            tableList.goToPage(event.currentTarget.pageNumber);
         });
 
         if (options.style.paginationButton) {
@@ -397,3 +403,11 @@ function fieldSorter(fields) {
             }, 0);
     };
 }
+
+
+
+/**
+ * :::: TODO ::::
+ * _ Allow to configure style to each column (property 'style')
+ * _ Allow to apply filters 
+ */
