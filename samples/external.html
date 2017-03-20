@@ -20,7 +20,7 @@
     <script type="text/javascript">
         var t0 = performance.now();
 
-        var nList = new nList({
+        var list = new nList({
             container: 'nListContainer',
             pageSize: 20,
             columns: [
@@ -37,11 +37,15 @@
                     filterable: true
                 }
             ],
+            serverSideProcessing: true,
             data: function (options, dataSettings, callback) {
                 var sampleData = [];
-                for (var i = 0; i < 100; i++) {
+                for (var i = (dataSettings.page - 1) * options.pageSize; i < ((dataSettings.page - 1) * options.pageSize) + options.pageSize; i++) {
                     sampleData.push({ Code: 'E0' + i, Name: 'External 0' + i });
                 }
+                
+                options.numberOfRecords = 40;
+
                 callback(sampleData);
             },
             style: {
