@@ -99,6 +99,9 @@ nList.prototype.createColumnHeader = function (columnDefinition) {
     column.innerText = columnDefinition.text || '';
     column.nListColumn = columnDefinition;
 
+    if(columnDefinition.width != null && columnDefinition.width !== '')
+        column.style.width = columnDefinition.width;
+
     if (columnDefinition.sortable) {
         column.addEventListener('click', function (event) {
             var columnInfo = event.currentTarget.nListColumn;
@@ -196,6 +199,10 @@ nList.prototype.renderData = function (data) {
                 else
                     tableColumn.innerText = dataToRender[i][columns[c].id];
                     
+                tableColumn.className = columns[c].style || '';
+                if(columns[c].width != null && columns[c].width !== '')
+                    tableColumn.style.width = columns[c].width;
+
                 tableRow.append(tableColumn);
             }
 
