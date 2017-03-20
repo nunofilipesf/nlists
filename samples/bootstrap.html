@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>nLists Sample: Bootstrap</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-6">
+                <br>
+                <div id="nListContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/nLists.js"></script>
+
+    <script type="text/javascript">
+        var sampleData = [];
+        for(var i = 0; i < 100; i++){
+            sampleData.push({ Code: 'C0' + i, Name: 'Customer 0' + i });                
+        }
+
+        var t0 = performance.now();
+        
+        var nList = new nList({
+            container: 'nListContainer',
+            pageSize: 20,
+            columns: [
+                {
+                    id: 'Code',
+                    text: 'Code',
+                    sortable: true,
+                    filterable: true
+                },
+                {
+                    id: 'Name',
+                    text: 'Name',
+                    sortable: true,
+                    filterable: true
+                }
+            ],
+            data: sampleData,
+            style:{
+                table: 'table table-bordered table-striped table-sm'
+            }
+        });
+
+        var t1 = performance.now();
+        console.log('Performance: ' + (t1 - t0).toFixed(2) + 'ms');
+    </script>
+</body>
+
+</html>
