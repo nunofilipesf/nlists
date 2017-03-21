@@ -18,6 +18,20 @@
         crossorigin="anonymous"></script>
 </head>
 
+<style>
+    .left{
+        text-align: left;
+    }
+
+    .center{
+        text-align: center;
+    }
+
+    .right{
+        text-align: right;
+    }
+</style>
+
 <body>
     <div class="container-fluid">
         <div class="row mt-4">
@@ -39,24 +53,30 @@
 
         var list = new nList({
             container: 'nListContainer',
-            pageSize: 20,
+            pageSize: -1,
+            pagination: 'full',
             columns: [
                 {
                     id: 'Code',
                     text: 'Code',
                     sortable: true,
-                    filterable: true
+                    filterable: true,
+                    style: 'left',
+                    width: '30%'
                 },
                 {
                     id: 'Name',
                     text: 'Name',
                     sortable: true,
-                    filterable: true
+                    filterable: true,
+                    style: 'center',
+                    width: '30%'
                 },
                 {
                     id: 'Options',
                     text: '',
-                    html: true
+                    html: true,
+                    style: 'right'
                 }
             ],
             data: sampleData,
