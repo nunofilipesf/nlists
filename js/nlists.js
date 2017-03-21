@@ -6,7 +6,7 @@ var nList = function (options) {
     this._dataSettings = {
         page: 1,
         sorting: [],
-        filters: []
+        filters: {}
     };
 
     this.setDefaultOptions(this._options);
@@ -88,15 +88,16 @@ nList.prototype.appendColumnHeaders = function (table, columnHeaders, headerStyl
     var tableHeaderRow = document.createElement('tr');
 
     for (var i = 0; i < columnHeaders.length; i++) {
-        tableHeaderRow.append(this.createColumnHeader(columnHeaders[i]));
+        tableHeaderRow.append(this.createColumnHeader(table.id, columnHeaders[i]));
     }
 
     tableHeader.append(tableHeaderRow);
     table.append(tableHeader);
 }
 
-nList.prototype.createColumnHeader = function (columnDefinition) {
+nList.prototype.createColumnHeader = function (tableid, columnDefinition) {
     var column = document.createElement('th');
+    column.id = tableid + '_' + columnDefinition.id;
     column.innerHTML = columnDefinition.text || '';
     column.nListColumn = columnDefinition;
 
@@ -199,6 +200,7 @@ nList.prototype.renderData = function (data) {
     }
     else {
         dataToRender = this.sortValues(dataToRender, this._dataSettings.sorting);
+        dataToRender = this.filterValues(dataToRender, columns, this._dataSettings.filters);
     }
 
     for (var i = startAt; i < endAt; i++) {
@@ -431,10 +433,10 @@ nList.prototype.sortValues = function (values, sortingDefinition) {
             sortingOptions.push(this._dataSettings.sorting[i].column);
     }
 
-    return values.sort(fieldSorter(sortingOptions));
+    return values.sort(nList.fieldSorter(sortingOptions));
 }
 
-function fieldSorter(fields) {
+nList.fieldSorter = function (fields) {
     return function (a, b) {
         return fields
             .map(function (o) {
@@ -447,8 +449,96 @@ function fieldSorter(fields) {
                 if (a[o] < b[o]) return -(dir);
                 return 0;
             })
-            .reduce(function firstNonZeroValue(p, n) {
+            .reduce(function (p, n) {
                 return p ? p : n;
             }, 0);
     };
+}
+
+// Filtering
+nList.prototype.applyFilter = function (column, comparisionType, comparisionValue) {
+    var listColumn;
+    for (var i = 0; i < this._options.columns.length; i++) {
+        if (this._options.columns[i].id == column) {
+            listColumn = this._options.columns[i];
+            break;
+        }
+    }
+
+    this._dataSettings.filters[listColumn.id] = { type: comparisionType, value: comparisionValue };
+
+    this._dataSettings.page = 1;
+    this.loadData(this._options, this._dataSettings);
+}
+
+nList.prototype.removeFilter = function (column) {
+    if (this._dataSettings.filters[column])
+        delete this._dataSettings.filters[column];
+
+    this._dataSettings.page = 1;
+    this.loadData(this._options, this._dataSettings);
+}
+
+nList.comparisionFunctions = {
+    // Equal
+    'eq': function (a, b) {
+        return a === b;
+    },
+    // Greater than
+    'gt': function (a, b) {
+        return a > b;
+    },
+
+    // Greater than or equal
+    'ge': function (a, b) {
+        return a >= b;
+    },
+
+    // Less than
+    'lt': function (a, b) {
+        return a < b;
+    },
+
+    // Less than or equal
+    'le': function (a, b) {
+        return a <= b;
+    },
+
+    // Contains (strings only)
+    'ct': function (a, b) {
+        return String(a).indexOf(String(b)) != -1;
+    },
+
+    // Starts with (strings only)
+    'sw': function (a, b) {
+        return String(a).startsWith(String(b));
+    },
+
+    // Ends with (strings only)
+    'ew': function (a, b) {
+        return String(a).endsWith(String(b));
+    },
+}
+
+nList.prototype.filterValues = function (values, columns, filterDefinition) {
+    var filteredValues = [];
+    for (var i = 0; i < values.length; i++) {
+        if (this.isValidWithFilters(values[i], columns, filterDefinition)) {
+            filteredValues.push(values[i]);
+        }
+    }
+    return filteredValues;
+}
+
+nList.prototype.isValidWithFilters = function (row, columns, filterDefinition) {
+    for (var c = 0; c < columns.length; c++) {
+        var column = columns[c].id;
+        var columnFilter = filterDefinition[column];
+        if (columnFilter && nList.comparisionFunctions[columnFilter.type]) {
+            if (!nList.comparisionFunctions[columnFilter.type](row[column], columnFilter.value))
+                return false;
+        }
+    }
+
+    return true;
 }
