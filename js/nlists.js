@@ -403,11 +403,3 @@ function fieldSorter(fields) {
             }, 0);
     };
 }
-
-
-
-/**
- * :::: TODO ::::
- * _ Allow to configure style to each column (property 'style')
- * _ Allow to apply filters 
- */
