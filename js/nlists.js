@@ -21,6 +21,7 @@ nList.prototype.setDefaultOptions = function (options) {
             style: {}
         };
 
+    options.pagination = options.pagination || 'full';
     options.pageSize = options.pageSize || 20;
 
     options.getNumberOfRecords = function () {
@@ -48,7 +49,7 @@ nList.prototype.init = function (options) {
 
     this.appendColumnHeaders(options.table, options.columns, options.style.header);
     this.appendBody(options.table, options.style.body);
-    this.appendFooter(options.table, options.columns.length, options.style.footer, options.style.information, options.style.pagination, options.style.paginationButton);
+    this.appendFooter(options.table, options.columns.length, options.style.footer, options.style.information, options.style.pagination, options.style.paginationButton, options.pagination);
 }
 
 nList.prototype.throwException = function (text) {
@@ -99,6 +100,9 @@ nList.prototype.createColumnHeader = function (columnDefinition) {
     column.innerHTML = columnDefinition.text || '';
     column.nListColumn = columnDefinition;
 
+    if (columnDefinition.width != null && columnDefinition.width !== '')
+        column.style.width = columnDefinition.width;
+
     if (columnDefinition.sortable) {
         column.addEventListener('click', function (event) {
             var columnInfo = event.currentTarget.nListColumn;
@@ -123,31 +127,33 @@ nList.prototype.appendBody = function (table, bodyStyle) {
     table.append(tableBody);
 }
 
-nList.prototype.appendFooter = function (table, numberOfColumns, footerStyle, footerInfoStyle, footerPaginationStyle, footerPaginationButtonStyle) {
-    var tableFooter = document.createElement('tfoot');
-    var tableFooterRow = document.createElement('tr');
+nList.prototype.appendFooter = function (table, numberOfColumns, footerStyle, footerInfoStyle, footerPaginationStyle, footerPaginationButtonStyle, pagination) {
+    if (pagination != null && pagination !== 'none') {
+        var tableFooter = document.createElement('tfoot');
+        var tableFooterRow = document.createElement('tr');
 
-    var numberOfColumnsDivision = numberOfColumns/2;
-    var tableFooterInfoColumn = document.createElement('td');
-    tableFooterInfoColumn.className = 'nList-information';
-    tableFooterInfoColumn.setAttribute('colspan', Math.floor(numberOfColumnsDivision));
-    var tableFooterPaginationColumn = document.createElement('td');
-    tableFooterPaginationColumn.className = 'nList-pagination';
-    tableFooterPaginationColumn.setAttribute('colspan', numberOfColumns - Math.floor(numberOfColumnsDivision));
+        var numberOfColumnsDivision = numberOfColumns / 2;
+        var tableFooterInfoColumn = document.createElement('td');
+        tableFooterInfoColumn.className = 'nList-information';
+        tableFooterInfoColumn.setAttribute('colspan', Math.floor(numberOfColumnsDivision));
+        var tableFooterPaginationColumn = document.createElement('td');
+        tableFooterPaginationColumn.className = 'nList-pagination';
+        tableFooterPaginationColumn.setAttribute('colspan', numberOfColumns - Math.floor(numberOfColumnsDivision));
 
-    if (footerStyle)
-        tableFooter.className += ' ' + footerStyle;
+        if (footerStyle)
+            tableFooter.className += ' ' + footerStyle;
 
-    if (footerInfoStyle)
-        tableFooterInfoColumn.className += ' ' + footerInfoStyle;
+        if (footerInfoStyle)
+            tableFooterInfoColumn.className += ' ' + footerInfoStyle;
 
-    if (footerPaginationStyle)
-        tableFooterPaginationColumn.className += ' ' + footerPaginationStyle;
+        if (footerPaginationStyle)
+            tableFooterPaginationColumn.className += ' ' + footerPaginationStyle;
 
-    tableFooterRow.append(tableFooterInfoColumn);
-    tableFooterRow.append(tableFooterPaginationColumn);
-    tableFooter.append(tableFooterRow);
-    table.append(tableFooter);
+        tableFooterRow.append(tableFooterInfoColumn);
+        tableFooterRow.append(tableFooterPaginationColumn);
+        tableFooter.append(tableFooterRow);
+        table.append(tableFooter);
+    }
 }
 
 nList.prototype.loadData = function (options, dataSettings) {
@@ -172,10 +178,16 @@ nList.prototype.renderData = function (data) {
 
     tableBody.innerHTML = '';
 
-    var startAt = (currentPage - 1) * pageSize;
-    var endAt = ((currentPage - 1) * pageSize) + pageSize;
-
     var dataToRender = data.slice();
+
+    if (pageSize === -1) {
+        var startAt = 0;
+        var endAt = dataToRender.length;
+    }
+    else {
+        var startAt = (currentPage - 1) * pageSize;
+        var endAt = ((currentPage - 1) * pageSize) + pageSize;
+    }
 
     if (this._options.serverSideProcessing === true) {
         startAt = 0;
@@ -191,11 +203,15 @@ nList.prototype.renderData = function (data) {
 
             for (var c = 0; c < columns.length; c++) {
                 var tableColumn = document.createElement('td');
-                if(columns[c].html === true)
-                    tableColumn.innerHTML = dataToRender[i][columns[c].id];    
+                if (columns[c].html === true)
+                    tableColumn.innerHTML = dataToRender[i][columns[c].id];
                 else
                     tableColumn.innerText = dataToRender[i][columns[c].id];
-                    
+
+                tableColumn.className = columns[c].style || '';
+                if (columns[c].width != null && columns[c].width !== '')
+                    tableColumn.style.width = columns[c].width;
+
                 tableRow.append(tableColumn);
             }
 
@@ -207,49 +223,53 @@ nList.prototype.renderData = function (data) {
 }
 
 nList.prototype.renderPagination = function (options, dataSettings) {
-    var tableFooterPaginationColumn = options.table.getElementsByClassName('nList-pagination')[0];
+    if (options.pagination != null && options.pagination !== 'none') {
+        var tableFooterPaginationColumn = options.table.getElementsByClassName('nList-pagination')[0];
 
-    if (tableFooterPaginationColumn == null)
-        this.throwException("Footer not found");
+        if (tableFooterPaginationColumn == null)
+            this.throwException("Footer not found");
 
-    var tableFooterPaginationPrevious = tableFooterPaginationColumn.getElementsByClassName('nList-pagination-previous')[0];
-    if (tableFooterPaginationPrevious == null) {
-        tableFooterPaginationPrevious = document.createElement('button');
-        tableFooterPaginationPrevious.innerHTML = "&laquo;";
-        tableFooterPaginationPrevious.className = "nList-pagination-previous";
-        tableFooterPaginationPrevious.addEventListener('click', function (event) {
-            //                    button        td            tr            tfoot         table
-            var tableList = event.currentTarget.parentElement.parentElement.parentElement.parentElement.nList;
-            tableList.navigateToPage(-1);
-        });
+        var tableFooterPaginationPrevious = tableFooterPaginationColumn.getElementsByClassName('nList-pagination-previous')[0];
+        if (tableFooterPaginationPrevious == null) {
+            tableFooterPaginationPrevious = document.createElement('button');
+            tableFooterPaginationPrevious.innerHTML = "&laquo;";
+            tableFooterPaginationPrevious.className = "nList-pagination-previous";
+            tableFooterPaginationPrevious.addEventListener('click', function (event) {
+                //                    button        td            tr            thead         table
+                var tableList = event.currentTarget.parentElement.parentElement.parentElement.parentElement.nList;
 
-        if (options.style.paginationButton) {
-            tableFooterPaginationPrevious.className += ' ' + options.style.paginationButton;
+                tableList.navigateToPage(-1);
+            });
+
+            if (options.style.paginationButton) {
+                tableFooterPaginationPrevious.className += ' ' + options.style.paginationButton;
+            }
+
+            tableFooterPaginationColumn.append(tableFooterPaginationPrevious);
         }
 
-        tableFooterPaginationColumn.append(tableFooterPaginationPrevious);
-    }
+        var tableFooterPaginationNext = tableFooterPaginationColumn.getElementsByClassName('nList-pagination-next')[0];
+        if (tableFooterPaginationNext == null) {
+            tableFooterPaginationNext = document.createElement('button');
+            tableFooterPaginationNext.innerHTML = "&raquo;";
+            tableFooterPaginationNext.className = "nList-pagination-next";
+            tableFooterPaginationNext.addEventListener('click', function (event) {
+                //                    button        td            tr            thead         table
+                var tableList = event.currentTarget.parentElement.parentElement.parentElement.parentElement.nList;
+                tableList.navigateToPage(1);
+            });
 
-    var tableFooterPaginationNext = tableFooterPaginationColumn.getElementsByClassName('nList-pagination-next')[0];
-    if (tableFooterPaginationNext == null) {
-        tableFooterPaginationNext = document.createElement('button');
-        tableFooterPaginationNext.innerHTML = "&raquo;";
-        tableFooterPaginationNext.className = "nList-pagination-next";
-        tableFooterPaginationNext.addEventListener('click', function (event) {
-            //                    button        td            tr            tfoot         table
-            var tableList = event.currentTarget.parentElement.parentElement.parentElement.parentElement.nList;
-            tableList.navigateToPage(1);
-        });
+            if (options.style.paginationButton) {
+                tableFooterPaginationNext.className += ' ' + options.style.paginationButton;
+            }
 
-        if (options.style.paginationButton) {
-            tableFooterPaginationNext.className += ' ' + options.style.paginationButton;
+            tableFooterPaginationColumn.append(tableFooterPaginationNext);
         }
 
-        tableFooterPaginationColumn.append(tableFooterPaginationNext);
-    }
+        this.renderPaginationButtons(options, dataSettings, tableFooterPaginationColumn, tableFooterPaginationPrevious, tableFooterPaginationNext);
 
-    this.renderPaginationButtons(options, dataSettings, tableFooterPaginationColumn, tableFooterPaginationPrevious, tableFooterPaginationNext);
-    this.disableNavigationButtons(dataSettings.page, dataSettings.numberOfPages, tableFooterPaginationPrevious, tableFooterPaginationNext);
+        this.disableNavigationButtons(dataSettings.page, dataSettings.numberOfPages, tableFooterPaginationPrevious, tableFooterPaginationNext);
+    }
 }
 
 nList.prototype.renderPaginationButtons = function (options, dataSettings, paginationContainer, previousButton, nextButton) {
@@ -263,44 +283,46 @@ nList.prototype.renderPaginationButtons = function (options, dataSettings, pagin
 
     dataSettings.numberOfPages = numberOfPages;
 
-    var currentPage = dataSettings.page;
+    if (options.pagination === 'full') {
+        var currentPage = dataSettings.page;
 
-    var firstPageToRender = currentPage - 2;
-    firstPageToRender = firstPageToRender < 1 ? 1 : firstPageToRender;
+        var firstPageToRender = currentPage - 2;
+        firstPageToRender = firstPageToRender < 1 ? 1 : firstPageToRender;
 
-    var lastPageToRender = currentPage + 2;
+        var lastPageToRender = currentPage + 2;
 
-    if (firstPageToRender == 1)
-        lastPageToRender = firstPageToRender + 4;
-    if (lastPageToRender == numberOfPages)
-        firstPageToRender = lastPageToRender - 4;
+        if (firstPageToRender == 1)
+            lastPageToRender = firstPageToRender + 4;
+        if (lastPageToRender == numberOfPages)
+            firstPageToRender = lastPageToRender - 4;
 
-    lastPageToRender = lastPageToRender > numberOfPages ? numberOfPages : lastPageToRender;
+        lastPageToRender = lastPageToRender > numberOfPages ? numberOfPages : lastPageToRender;
 
-    // Render the page buttons
-    for (var i = firstPageToRender; i <= lastPageToRender; i++) {
-        var page = i;
-        var tableFooterPaginationPage = document.createElement('button');
-        tableFooterPaginationPage.innerText = page;
-        tableFooterPaginationPage.className = "nList-pagination-page";
-        tableFooterPaginationPage.pageNumber = page;
-        tableFooterPaginationPage.addEventListener('click', function (event) {
-            //                    button        td            tr            tfoot         table
-            var tableList = event.currentTarget.parentElement.parentElement.parentElement.parentElement.nList;
-            tableList.goToPage(event.currentTarget.pageNumber);
-        });
+        // Render the page buttons
+        for (var i = firstPageToRender; i <= lastPageToRender; i++) {
+            var page = i;
+            var tableFooterPaginationPage = document.createElement('button');
+            tableFooterPaginationPage.innerText = page;
+            tableFooterPaginationPage.className = "nList-pagination-page";
+            tableFooterPaginationPage.pageNumber = page;
+            tableFooterPaginationPage.addEventListener('click', function (event) {
+                //                    button        td            tr            tfoot         table
+                var tableList = event.currentTarget.parentElement.parentElement.parentElement.parentElement.nList;
+                tableList.goToPage(event.currentTarget.pageNumber);
+            });
 
-        if (options.style.paginationButton) {
-            tableFooterPaginationPage.className += ' ' + options.style.paginationButton;
+            if (options.style.paginationButton) {
+                tableFooterPaginationPage.className += ' ' + options.style.paginationButton;
+            }
+
+            // If the buttons corresponds to the current page, disable it
+            if (dataSettings.page == page) {
+                tableFooterPaginationPage.setAttribute('disabled', '');
+                tableFooterPaginationPage.className += ' ' + 'nList-paginationButton-inactive';
+            }
+
+            paginationContainer.insertBefore(tableFooterPaginationPage, nextButton);
         }
-
-        // If the buttons corresponds to the current page, disable it
-        if (dataSettings.page == page) {
-            tableFooterPaginationPage.setAttribute('disabled', '');
-            tableFooterPaginationPage.className += ' ' + 'nList-paginationButton-inactive';
-        }
-
-        paginationContainer.insertBefore(tableFooterPaginationPage, nextButton);
     }
 }
 
@@ -359,7 +381,7 @@ nList.prototype.sortBy = function (column, sortType) {
         this._dataSettings.sorting.splice(currentFilterToColumnIndex, 1);
     }
     else {
-        if(currentFilterToColumnIndex > -1)
+        if (currentFilterToColumnIndex > -1)
             this._dataSettings.sorting[currentFilterToColumnIndex].type = sortType;
         else
             // Add to sorting array
