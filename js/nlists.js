@@ -100,18 +100,22 @@ nList.prototype.createColumnHeader = function (columnDefinition) {
     column.innerHTML = columnDefinition.text || '';
     column.nListColumn = columnDefinition;
 
+    column.className = columnDefinition.style || '';
     if (columnDefinition.width != null && columnDefinition.width !== '')
         column.style.width = columnDefinition.width;
 
     if (columnDefinition.sortable) {
+        column.classList.add('nList-sortable');
+        column.innerHTML += '<span style="visibility: hidden" class="nList-sorting">&#9650;</span>'
+
         column.addEventListener('click', function (event) {
             var columnInfo = event.currentTarget.nListColumn;
 
-            //                th            tr            thead         table
+            //                    th            tr            thead         table
             var tableList = event.currentTarget.parentElement.parentElement.parentElement.nList;
 
             columnInfo.sortType = tableList.getNextSortType(columnInfo.sortType);
-            tableList.sortBy(columnInfo.id, columnInfo.sortType);
+            tableList.sortBy(columnInfo.id, columnInfo.sortType, event.currentTarget);
         });
     }
 
@@ -369,7 +373,7 @@ nList.prototype.getNextSortType = function (currentSortType) {
         return '';
 }
 
-nList.prototype.sortBy = function (column, sortType) {
+nList.prototype.sortBy = function (column, sortType, domColumn) {
     var currentFilterToColumnIndex = -1;
     for (var i = 0; i < this._dataSettings.sorting.length; i++) {
         if (this._dataSettings.sorting[i].column == column)
@@ -388,8 +392,31 @@ nList.prototype.sortBy = function (column, sortType) {
             this._dataSettings.sorting.push({ column: column, type: sortType });
     }
 
+    this.applySortSymbolToColumn(domColumn, sortType);
+
     this._dataSettings.page = 1;
     this.loadData(this._options, this._dataSettings);
+}
+
+nList.prototype.applySortSymbolToColumn = function (domColumn, sortType) {
+    var sortSymbol = '';
+
+    if (sortType === 'desc')
+        sortSymbol = '&#9660;';
+    else
+        if (sortType === 'asc')
+            sortSymbol = '&#9650;';
+
+    var sortingSymbolContainer = domColumn.getElementsByClassName('nList-sorting')[0];
+    if (sortingSymbolContainer != null) {
+        sortingSymbolContainer.innerHTML = sortSymbol;
+        if (sortSymbol !== '')
+            sortingSymbolContainer.style.visibility = '';
+        else {
+            sortingSymbolContainer.style.visibility = 'hidden';
+            sortingSymbolContainer.innerHTML = '&#9650;';
+        }
+    }
 }
 
 nList.prototype.sortValues = function (values, sortingDefinition) {
