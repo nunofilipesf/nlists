@@ -376,22 +376,35 @@ nList.prototype.getNextSortType = function (currentSortType) {
 }
 
 nList.prototype.sortBy = function (column, sortType, domColumn) {
-    var currentFilterToColumnIndex = -1;
-    for (var i = 0; i < this._dataSettings.sorting.length; i++) {
-        if (this._dataSettings.sorting[i].column == column)
-            currentFilterToColumnIndex = i;
-    }
+    if (this._options.multipleSorting === true) {
+        var currentFilterToColumnIndex = -1;
+        for (var i = 0; i < this._dataSettings.sorting.length; i++) {
+            if (this._dataSettings.sorting[i].column == column)
+                currentFilterToColumnIndex = i;
+        }
 
-    if ((sortType == null || sortType === '') && currentFilterToColumnIndex > -1) {
-        // Remove from sorting array
-        this._dataSettings.sorting.splice(currentFilterToColumnIndex, 1);
+        if ((sortType == null || sortType === '') && currentFilterToColumnIndex > -1) {
+            // Remove from sorting array
+            this._dataSettings.sorting.splice(currentFilterToColumnIndex, 1);
+        }
+        else {
+            if (currentFilterToColumnIndex > -1)
+                this._dataSettings.sorting[currentFilterToColumnIndex].type = sortType;
+            else
+                // Add to sorting array
+                this._dataSettings.sorting.push({ column: column, type: sortType });
+        }
     }
-    else {
-        if (currentFilterToColumnIndex > -1)
-            this._dataSettings.sorting[currentFilterToColumnIndex].type = sortType;
-        else
-            // Add to sorting array
-            this._dataSettings.sorting.push({ column: column, type: sortType });
+    else{
+        for (var i = 0; i < this._dataSettings.sorting.length; i++) {
+            var sortingColumn = this._dataSettings.sorting[i];
+            var sortingColumnDomElement = document.getElementById(this._options.id + '_' + sortingColumn.column);
+            sortingColumnDomElement.nListColumn.sortType = '';
+            this.applySortSymbolToColumn(sortingColumnDomElement, '');
+        }
+
+        // Add to sorting array
+        this._dataSettings.sorting = [{ column: column, type: sortType }];
     }
 
     this.applySortSymbolToColumn(domColumn, sortType);
