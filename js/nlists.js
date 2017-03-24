@@ -73,7 +73,7 @@ nList.prototype.createTableElement = function (id, style) {
 }
 
 nList.prototype.appendTableToContainer = function (container, table) {
-    container.append(table);
+    container.appendChild(table);
 }
 
 nList.prototype.appendColumnHeaders = function (table, columnHeaders, headerStyle) {
@@ -88,11 +88,11 @@ nList.prototype.appendColumnHeaders = function (table, columnHeaders, headerStyl
     var tableHeaderRow = document.createElement('tr');
 
     for (var i = 0; i < columnHeaders.length; i++) {
-        tableHeaderRow.append(this.createColumnHeader(table.id, columnHeaders[i]));
+        tableHeaderRow.appendChild(this.createColumnHeader(table.id, columnHeaders[i]));
     }
 
-    tableHeader.append(tableHeaderRow);
-    table.append(tableHeader);
+    tableHeader.appendChild(tableHeaderRow);
+    table.appendChild(tableHeader);
 }
 
 nList.prototype.createColumnHeader = function (tableid, columnDefinition) {
@@ -129,7 +129,7 @@ nList.prototype.appendBody = function (table, bodyStyle) {
     if (bodyStyle)
         tableBody.className += ' ' + bodyStyle;
 
-    table.append(tableBody);
+    table.appendChild(tableBody);
 }
 
 nList.prototype.appendFooter = function (table, numberOfColumns, footerStyle, footerInfoStyle, footerPaginationStyle, footerPaginationButtonStyle, pagination) {
@@ -154,10 +154,10 @@ nList.prototype.appendFooter = function (table, numberOfColumns, footerStyle, fo
         if (footerPaginationStyle)
             tableFooterPaginationColumn.className += ' ' + footerPaginationStyle;
 
-        tableFooterRow.append(tableFooterInfoColumn);
-        tableFooterRow.append(tableFooterPaginationColumn);
-        tableFooter.append(tableFooterRow);
-        table.append(tableFooter);
+        tableFooterRow.appendChild(tableFooterInfoColumn);
+        tableFooterRow.appendChild(tableFooterPaginationColumn);
+        tableFooter.appendChild(tableFooterRow);
+        table.appendChild(tableFooter);
     }
 }
 
@@ -218,10 +218,10 @@ nList.prototype.renderData = function (data) {
                 if (columns[c].width != null && columns[c].width !== '')
                     tableColumn.style.width = columns[c].width;
 
-                tableRow.append(tableColumn);
+                tableRow.appendChild(tableColumn);
             }
 
-            tableBody.append(tableRow);
+            tableBody.appendChild(tableRow);
         }
     }
 
@@ -251,7 +251,7 @@ nList.prototype.renderPagination = function (options, dataSettings) {
                 tableFooterPaginationPrevious.className += ' ' + options.style.paginationButton;
             }
 
-            tableFooterPaginationColumn.append(tableFooterPaginationPrevious);
+            tableFooterPaginationColumn.appendChild(tableFooterPaginationPrevious);
         }
 
         var tableFooterPaginationNext = tableFooterPaginationColumn.getElementsByClassName('nList-pagination-next')[0];
@@ -269,7 +269,7 @@ nList.prototype.renderPagination = function (options, dataSettings) {
                 tableFooterPaginationNext.className += ' ' + options.style.paginationButton;
             }
 
-            tableFooterPaginationColumn.append(tableFooterPaginationNext);
+            tableFooterPaginationColumn.appendChild(tableFooterPaginationNext);
         }
 
         this.renderPaginationButtons(options, dataSettings, tableFooterPaginationColumn, tableFooterPaginationPrevious, tableFooterPaginationNext);
