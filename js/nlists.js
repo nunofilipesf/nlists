@@ -23,6 +23,7 @@ nList.prototype.setDefaultOptions = function (options) {
 
     options.pagination = options.pagination || 'full';
     options.pageSize = options.pageSize || 20;
+    options.language = (options.language || 'default').toLowerCase();
 
     options.getNumberOfRecords = function () {
         if (this.numberOfRecords != null) {
@@ -203,25 +204,38 @@ nList.prototype.renderData = function (data) {
         dataToRender = this.filterValues(dataToRender, columns, this._dataSettings.filters);
     }
 
-    for (var i = startAt; i < endAt; i++) {
-        if (dataToRender[i] != null) {
-            var tableRow = document.createElement('tr');
 
-            for (var c = 0; c < columns.length; c++) {
-                var tableColumn = document.createElement('td');
-                if (columns[c].html === true)
-                    tableColumn.innerHTML = dataToRender[i][columns[c].id];
-                else
-                    tableColumn.innerText = dataToRender[i][columns[c].id];
+    if (dataToRender.length == 0) {
+        var tableRow = document.createElement('tr');
+        var tableColumn = document.createElement('td'); tableColumn.colSpan = columns.length;
 
-                tableColumn.className = columns[c].style || '';
-                if (columns[c].width != null && columns[c].width !== '')
-                    tableColumn.style.width = columns[c].width;
+        tableColumn.innerText = this.getText('NoRecords');
+        tableColumn.style.textAlign = 'center';
 
-                tableRow.appendChild(tableColumn);
+        tableRow.appendChild(tableColumn);
+        tableBody.appendChild(tableRow);
+    }
+    else {
+        for (var i = startAt; i < endAt; i++) {
+            if (dataToRender[i] != null) {
+                var tableRow = document.createElement('tr');
+
+                for (var c = 0; c < columns.length; c++) {
+                    var tableColumn = document.createElement('td');
+                    if (columns[c].html === true)
+                        tableColumn.innerHTML = dataToRender[i][columns[c].id];
+                    else
+                        tableColumn.innerText = dataToRender[i][columns[c].id];
+
+                    tableColumn.className = columns[c].style || '';
+                    if (columns[c].width != null && columns[c].width !== '')
+                        tableColumn.style.width = columns[c].width;
+
+                    tableRow.appendChild(tableColumn);
+                }
+
+                tableBody.appendChild(tableRow);
             }
-
-            tableBody.appendChild(tableRow);
         }
     }
 
@@ -395,7 +409,7 @@ nList.prototype.sortBy = function (column, sortType, domColumn) {
                 this._dataSettings.sorting.push({ column: column, type: sortType });
         }
     }
-    else{
+    else {
         for (var i = 0; i < this._dataSettings.sorting.length; i++) {
             var sortingColumn = this._dataSettings.sorting[i];
             var sortingColumnDomElement = document.getElementById(this._options.id + '_' + sortingColumn.column);
@@ -554,4 +568,26 @@ nList.prototype.isValidWithFilters = function (row, columns, filterDefinition) {
     }
 
     return true;
+}
+
+/* Language defaults */
+nList.languages = {
+    'default': {
+        NoRecords: 'No records found'
+    }
+};
+
+nList.prototype.getText = function (textCode) {
+    if (this._options.language == null || this._options.language === '')
+        this._options.language = 'default';
+    
+    if(nList.languages[this._options.language] == null){
+        console.warn('Language not found. Default will be used');
+        this._options.language = 'default';
+    }
+
+    if(nList.languages[this._options.language][textCode])
+        return nList.languages[this._options.language][textCode];
+
+    return '';
 }
