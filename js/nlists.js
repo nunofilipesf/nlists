@@ -138,13 +138,14 @@ nList.prototype.appendFooter = function (table, numberOfColumns, footerStyle, fo
         var tableFooter = document.createElement('tfoot');
         var tableFooterRow = document.createElement('tr');
 
-        var numberOfColumnsDivision = numberOfColumns / 2;
-        var tableFooterInfoColumn = document.createElement('td');
-        tableFooterInfoColumn.className = 'nList-information';
-        tableFooterInfoColumn.setAttribute('colspan', Math.floor(numberOfColumnsDivision));
+        // var numberOfColumnsDivision = numberOfColumns / 2;
+        // var tableFooterInfoColumn = document.createElement('td');
+        // tableFooterInfoColumn.className = 'nList-information';
+        // tableFooterInfoColumn.setAttribute('colspan', Math.floor(numberOfColumnsDivision));
         var tableFooterPaginationColumn = document.createElement('td');
         tableFooterPaginationColumn.className = 'nList-pagination';
-        tableFooterPaginationColumn.setAttribute('colspan', numberOfColumns - Math.floor(numberOfColumnsDivision));
+        //tableFooterPaginationColumn.setAttribute('colspan', numberOfColumns - Math.floor(numberOfColumnsDivision));
+        tableFooterPaginationColumn.setAttribute('colspan', numberOfColumns);
 
         if (footerStyle)
             tableFooter.className += ' ' + footerStyle;
