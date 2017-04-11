@@ -156,7 +156,7 @@ nList.prototype.appendFooter = function (table, numberOfColumns, footerStyle, fo
         if (footerPaginationStyle)
             tableFooterPaginationColumn.className += ' ' + footerPaginationStyle;
 
-        tableFooterRow.appendChild(tableFooterInfoColumn);
+        //tableFooterRow.appendChild(tableFooterInfoColumn);
         tableFooterRow.appendChild(tableFooterPaginationColumn);
         tableFooter.appendChild(tableFooterRow);
         table.appendChild(tableFooter);
