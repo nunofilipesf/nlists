@@ -295,7 +295,7 @@ nList.prototype.renderPagination = function (options, dataSettings) {
 
 nList.prototype.renderPaginationButtons = function (options, dataSettings, paginationContainer, previousButton, nextButton) {
     var currentPages = options.table.getElementsByClassName('nList-pagination-page');
-    while (currentPages.length > 0) currentPages[0].remove();
+    while (currentPages.length > 0) currentPages[0].parentElement.removeChild(currentPages[0]);
 
     // Calculate the number of pages
     var numberOfRecordsDivisionByPage = options.getNumberOfRecords() / options.pageSize;
@@ -581,13 +581,13 @@ nList.languages = {
 nList.prototype.getText = function (textCode) {
     if (this._options.language == null || this._options.language === '')
         this._options.language = 'default';
-    
-    if(nList.languages[this._options.language] == null){
+
+    if (nList.languages[this._options.language] == null) {
         console.warn('Language not found. Default will be used');
         this._options.language = 'default';
     }
 
-    if(nList.languages[this._options.language][textCode])
+    if (nList.languages[this._options.language][textCode])
         return nList.languages[this._options.language][textCode];
 
     return '';
