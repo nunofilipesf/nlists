@@ -150,8 +150,8 @@ nList.prototype.appendFooter = function (table, numberOfColumns, footerStyle, fo
         if (footerStyle)
             tableFooter.className += ' ' + footerStyle;
 
-        if (footerInfoStyle)
-            tableFooterInfoColumn.className += ' ' + footerInfoStyle;
+        // if (footerInfoStyle)
+        //     tableFooterInfoColumn.className += ' ' + footerInfoStyle;
 
         if (footerPaginationStyle)
             tableFooterPaginationColumn.className += ' ' + footerPaginationStyle;
