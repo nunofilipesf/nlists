@@ -1,6 +1,6 @@
 "use strict";
 
-var nList = function (options) {
+var nList = function(options) {
 
     this._options = options;
     this._dataSettings = {
@@ -15,7 +15,7 @@ var nList = function (options) {
     this.renderPagination(this._options, this._dataSettings);
 }
 
-nList.prototype.setDefaultOptions = function (options) {
+nList.prototype.setDefaultOptions = function(options) {
     if (options == null)
         options = {
             style: {}
@@ -25,7 +25,7 @@ nList.prototype.setDefaultOptions = function (options) {
     options.pageSize = options.pageSize || 20;
     options.language = (options.language || 'default').toLowerCase();
 
-    options.getNumberOfRecords = function () {
+    options.getNumberOfRecords = function() {
         if (this.numberOfRecords != null) {
             return typeof this.numberOfRecords === 'function' ? this.numberOfRecords() : this.numberOfRecords;
         }
@@ -34,7 +34,7 @@ nList.prototype.setDefaultOptions = function (options) {
     };
 }
 
-nList.prototype.init = function (options) {
+nList.prototype.init = function(options) {
     if (typeof options.container === 'string')
         options.container = document.getElementById(options.container);
 
@@ -53,16 +53,16 @@ nList.prototype.init = function (options) {
     this.appendFooter(options.table, options.columns.length, options.style.footer, options.style.information, options.style.pagination, options.style.paginationButton, options.pagination);
 }
 
-nList.prototype.throwException = function (text) {
+nList.prototype.throwException = function(text) {
     throw "nList Exception: " + text;
 }
 
-nList.prototype.getTableId = function () {
+nList.prototype.getTableId = function() {
     return new Date().getTime();
 }
 
 // HTML Render
-nList.prototype.createTableElement = function (id, style) {
+nList.prototype.createTableElement = function(id, style) {
     var table = document.createElement('table');
     table.id = id;
     table.className = "nList";
@@ -73,11 +73,11 @@ nList.prototype.createTableElement = function (id, style) {
     return table;
 }
 
-nList.prototype.appendTableToContainer = function (container, table) {
+nList.prototype.appendTableToContainer = function(container, table) {
     container.appendChild(table);
 }
 
-nList.prototype.appendColumnHeaders = function (table, columnHeaders, headerStyle) {
+nList.prototype.appendColumnHeaders = function(table, columnHeaders, headerStyle) {
     if (columnHeaders == null || columnHeaders.length == 0)
         this.throwException("Columns not found");
 
@@ -96,7 +96,7 @@ nList.prototype.appendColumnHeaders = function (table, columnHeaders, headerStyl
     table.appendChild(tableHeader);
 }
 
-nList.prototype.createColumnHeader = function (tableid, columnDefinition) {
+nList.prototype.createColumnHeader = function(tableid, columnDefinition) {
     var column = document.createElement('th');
     column.id = tableid + '_' + columnDefinition.id;
     column.innerHTML = columnDefinition.text || '';
@@ -110,7 +110,7 @@ nList.prototype.createColumnHeader = function (tableid, columnDefinition) {
         column.classList.add('nList-sortable');
         column.innerHTML += '<span style="visibility: hidden" class="nList-sorting">&#9650;</span>'
 
-        column.addEventListener('click', function (event) {
+        column.addEventListener('click', function(event) {
             var columnInfo = event.currentTarget.nListColumn;
 
             //                    th            tr            thead         table
@@ -124,7 +124,7 @@ nList.prototype.createColumnHeader = function (tableid, columnDefinition) {
     return column;
 }
 
-nList.prototype.appendBody = function (table, bodyStyle) {
+nList.prototype.appendBody = function(table, bodyStyle) {
     var tableBody = document.createElement('tbody');
 
     if (bodyStyle)
@@ -133,7 +133,7 @@ nList.prototype.appendBody = function (table, bodyStyle) {
     table.appendChild(tableBody);
 }
 
-nList.prototype.appendFooter = function (table, numberOfColumns, footerStyle, footerInfoStyle, footerPaginationStyle, footerPaginationButtonStyle, pagination) {
+nList.prototype.appendFooter = function(table, numberOfColumns, footerStyle, footerInfoStyle, footerPaginationStyle, footerPaginationButtonStyle, pagination) {
     if (pagination != null && pagination !== 'none') {
         var tableFooter = document.createElement('tfoot');
         var tableFooterRow = document.createElement('tr');
@@ -163,16 +163,15 @@ nList.prototype.appendFooter = function (table, numberOfColumns, footerStyle, fo
     }
 }
 
-nList.prototype.loadData = function (options, dataSettings) {
+nList.prototype.loadData = function(options, dataSettings) {
     if (typeof this._options.data === 'function') {
         this._options.data(options, dataSettings, this.renderData.bind(this));
-    }
-    else {
+    } else {
         this.renderData(this._options.data);
     }
 }
 
-nList.prototype.renderData = function (data) {
+nList.prototype.renderData = function(data) {
     var table = this._options.table;
     var columns = this._options.columns;
     var pageSize = this._options.pageSize;
@@ -190,8 +189,7 @@ nList.prototype.renderData = function (data) {
     if (pageSize === -1) {
         var startAt = 0;
         var endAt = dataToRender.length;
-    }
-    else {
+    } else {
         var startAt = (currentPage - 1) * pageSize;
         var endAt = ((currentPage - 1) * pageSize) + pageSize;
     }
@@ -199,8 +197,7 @@ nList.prototype.renderData = function (data) {
     if (this._options.serverSideProcessing === true) {
         startAt = 0;
         endAt = pageSize;
-    }
-    else {
+    } else {
         dataToRender = this.sortValues(dataToRender, this._dataSettings.sorting);
         dataToRender = this.filterValues(dataToRender, columns, this._dataSettings.filters);
     }
@@ -208,15 +205,15 @@ nList.prototype.renderData = function (data) {
 
     if (dataToRender.length == 0) {
         var tableRow = document.createElement('tr');
-        var tableColumn = document.createElement('td'); tableColumn.colSpan = columns.length;
+        var tableColumn = document.createElement('td');
+        tableColumn.colSpan = columns.length;
 
         tableColumn.innerText = this.getText('NoRecords');
         tableColumn.style.textAlign = 'center';
 
         tableRow.appendChild(tableColumn);
         tableBody.appendChild(tableRow);
-    }
-    else {
+    } else {
         for (var i = startAt; i < endAt; i++) {
             if (dataToRender[i] != null) {
                 var tableRow = document.createElement('tr');
@@ -243,7 +240,7 @@ nList.prototype.renderData = function (data) {
     this.renderPagination(this._options, this._dataSettings);
 }
 
-nList.prototype.renderPagination = function (options, dataSettings) {
+nList.prototype.renderPagination = function(options, dataSettings) {
     if (options.pagination != null && options.pagination !== 'none') {
         var tableFooterPaginationColumn = options.table.getElementsByClassName('nList-pagination')[0];
 
@@ -255,7 +252,7 @@ nList.prototype.renderPagination = function (options, dataSettings) {
             tableFooterPaginationPrevious = document.createElement('button');
             tableFooterPaginationPrevious.innerHTML = "&laquo;";
             tableFooterPaginationPrevious.className = "nList-pagination-previous";
-            tableFooterPaginationPrevious.addEventListener('click', function (event) {
+            tableFooterPaginationPrevious.addEventListener('click', function(event) {
                 //                    button        td            tr            thead         table
                 var tableList = event.currentTarget.parentElement.parentElement.parentElement.parentElement.nList;
 
@@ -274,7 +271,7 @@ nList.prototype.renderPagination = function (options, dataSettings) {
             tableFooterPaginationNext = document.createElement('button');
             tableFooterPaginationNext.innerHTML = "&raquo;";
             tableFooterPaginationNext.className = "nList-pagination-next";
-            tableFooterPaginationNext.addEventListener('click', function (event) {
+            tableFooterPaginationNext.addEventListener('click', function(event) {
                 //                    button        td            tr            thead         table
                 var tableList = event.currentTarget.parentElement.parentElement.parentElement.parentElement.nList;
                 tableList.navigateToPage(1);
@@ -293,7 +290,7 @@ nList.prototype.renderPagination = function (options, dataSettings) {
     }
 }
 
-nList.prototype.renderPaginationButtons = function (options, dataSettings, paginationContainer, previousButton, nextButton) {
+nList.prototype.renderPaginationButtons = function(options, dataSettings, paginationContainer, previousButton, nextButton) {
     var currentPages = options.table.getElementsByClassName('nList-pagination-page');
     while (currentPages.length > 0) currentPages[0].parentElement.removeChild(currentPages[0]);
 
@@ -326,7 +323,7 @@ nList.prototype.renderPaginationButtons = function (options, dataSettings, pagin
             tableFooterPaginationPage.innerText = page;
             tableFooterPaginationPage.className = "nList-pagination-page";
             tableFooterPaginationPage.pageNumber = page;
-            tableFooterPaginationPage.addEventListener('click', function (event) {
+            tableFooterPaginationPage.addEventListener('click', function(event) {
                 //                    button        td            tr            tfoot         table
                 var tableList = event.currentTarget.parentElement.parentElement.parentElement.parentElement.nList;
                 tableList.goToPage(event.currentTarget.pageNumber);
@@ -347,12 +344,11 @@ nList.prototype.renderPaginationButtons = function (options, dataSettings, pagin
     }
 }
 
-nList.prototype.disableNavigationButtons = function (currentPage, numberOfPages, previousButton, nextButton) {
+nList.prototype.disableNavigationButtons = function(currentPage, numberOfPages, previousButton, nextButton) {
     if (currentPage == 1) {
         previousButton.setAttribute('disabled', '');
         previousButton.classList.add('nList-paginationButton-inactive');
-    }
-    else {
+    } else {
         previousButton.hasAttribute('disabled') && previousButton.removeAttribute('disabled');
         previousButton.classList.contains('nList-paginationButton-inactive') && previousButton.classList.remove('nList-paginationButton-inactive');
     }
@@ -360,26 +356,25 @@ nList.prototype.disableNavigationButtons = function (currentPage, numberOfPages,
     if (currentPage == numberOfPages) {
         nextButton.setAttribute('disabled', '');
         nextButton.classList.add('nList-paginationButton-inactive');
-    }
-    else {
+    } else {
         nextButton.hasAttribute('disabled') && nextButton.removeAttribute('disabled');
         nextButton.classList.contains('nList-paginationButton-inactive') && nextButton.classList.remove('nList-paginationButton-inactive');
     }
 }
 
 // Navigation
-nList.prototype.navigateToPage = function (pageNavigationValue) {
+nList.prototype.navigateToPage = function(pageNavigationValue) {
     this._dataSettings.page += pageNavigationValue;
     this.loadData(this._options, this._dataSettings);
 }
 
-nList.prototype.goToPage = function (pageValue) {
+nList.prototype.goToPage = function(pageValue) {
     this._dataSettings.page = pageValue;
     this.loadData(this._options, this._dataSettings);
 }
 
 // Sorting
-nList.prototype.getNextSortType = function (currentSortType) {
+nList.prototype.getNextSortType = function(currentSortType) {
     if (currentSortType == null || currentSortType === '')
         return 'asc';
 
@@ -390,7 +385,7 @@ nList.prototype.getNextSortType = function (currentSortType) {
         return '';
 }
 
-nList.prototype.sortBy = function (column, sortType, domColumn) {
+nList.prototype.sortBy = function(column, sortType, domColumn) {
     if (this._options.multipleSorting === true) {
         var currentFilterToColumnIndex = -1;
         for (var i = 0; i < this._dataSettings.sorting.length; i++) {
@@ -401,21 +396,19 @@ nList.prototype.sortBy = function (column, sortType, domColumn) {
         if ((sortType == null || sortType === '') && currentFilterToColumnIndex > -1) {
             // Remove from sorting array
             this._dataSettings.sorting.splice(currentFilterToColumnIndex, 1);
-        }
-        else {
+        } else {
             if (currentFilterToColumnIndex > -1)
                 this._dataSettings.sorting[currentFilterToColumnIndex].type = sortType;
             else
-                // Add to sorting array
+            // Add to sorting array
                 this._dataSettings.sorting.push({ column: column, type: sortType });
         }
-    }
-    else {
+    } else {
         for (var i = 0; i < this._dataSettings.sorting.length; i++) {
             var sortingColumn = this._dataSettings.sorting[i];
             var sortingColumnDomElement = document.getElementById(this._options.id + '_' + sortingColumn.column);
-            sortingColumnDomElement.nListColumn.sortType = '';
-            this.applySortSymbolToColumn(sortingColumnDomElement, '');
+            sortingColumnDomElement.nListColumn.sortType = sortType;
+            this.applySortSymbolToColumn(sortingColumnDomElement, sortType);
         }
 
         // Add to sorting array
@@ -428,14 +421,14 @@ nList.prototype.sortBy = function (column, sortType, domColumn) {
     this.loadData(this._options, this._dataSettings);
 }
 
-nList.prototype.applySortSymbolToColumn = function (domColumn, sortType) {
+nList.prototype.applySortSymbolToColumn = function(domColumn, sortType) {
     var sortSymbol = '';
 
     if (sortType === 'desc')
         sortSymbol = '&#9660;';
     else
-        if (sortType === 'asc')
-            sortSymbol = '&#9650;';
+    if (sortType === 'asc')
+        sortSymbol = '&#9650;';
 
     var sortingSymbolContainer = domColumn.getElementsByClassName('nList-sorting')[0];
     if (sortingSymbolContainer != null) {
@@ -449,7 +442,7 @@ nList.prototype.applySortSymbolToColumn = function (domColumn, sortType) {
     }
 }
 
-nList.prototype.sortValues = function (values, sortingDefinition) {
+nList.prototype.sortValues = function(values, sortingDefinition) {
     if (sortingDefinition == null || sortingDefinition.length == 0)
         return values;
 
@@ -464,10 +457,10 @@ nList.prototype.sortValues = function (values, sortingDefinition) {
     return values.sort(nList.fieldSorter(sortingOptions));
 }
 
-nList.fieldSorter = function (fields) {
-    return function (a, b) {
+nList.fieldSorter = function(fields) {
+    return function(a, b) {
         return fields
-            .map(function (o) {
+            .map(function(o) {
                 var dir = 1;
                 if (o[0] === '-') {
                     dir = -1;
@@ -477,14 +470,14 @@ nList.fieldSorter = function (fields) {
                 if (a[o] < b[o]) return -(dir);
                 return 0;
             })
-            .reduce(function (p, n) {
+            .reduce(function(p, n) {
                 return p ? p : n;
             }, 0);
     };
 }
 
 // Filtering
-nList.prototype.applyFilter = function (column, comparisionType, comparisionValue) {
+nList.prototype.applyFilter = function(column, comparisionType, comparisionValue) {
     var listColumn;
     for (var i = 0; i < this._options.columns.length; i++) {
         if (this._options.columns[i].id == column) {
@@ -499,7 +492,7 @@ nList.prototype.applyFilter = function (column, comparisionType, comparisionValu
     this.loadData(this._options, this._dataSettings);
 }
 
-nList.prototype.removeFilter = function (column) {
+nList.prototype.removeFilter = function(column) {
     if (this._dataSettings.filters[column])
         delete this._dataSettings.filters[column];
 
@@ -509,46 +502,46 @@ nList.prototype.removeFilter = function (column) {
 
 nList.comparisionFunctions = {
     // Equal
-    'eq': function (a, b) {
+    'eq': function(a, b) {
         return a === b;
     },
     // Greater than
-    'gt': function (a, b) {
+    'gt': function(a, b) {
         return a > b;
     },
 
     // Greater than or equal
-    'ge': function (a, b) {
+    'ge': function(a, b) {
         return a >= b;
     },
 
     // Less than
-    'lt': function (a, b) {
+    'lt': function(a, b) {
         return a < b;
     },
 
     // Less than or equal
-    'le': function (a, b) {
+    'le': function(a, b) {
         return a <= b;
     },
 
     // Contains (strings only)
-    'ct': function (a, b) {
+    'ct': function(a, b) {
         return String(a).indexOf(String(b)) != -1;
     },
 
     // Starts with (strings only)
-    'sw': function (a, b) {
+    'sw': function(a, b) {
         return String(a).startsWith(String(b));
     },
 
     // Ends with (strings only)
-    'ew': function (a, b) {
+    'ew': function(a, b) {
         return String(a).endsWith(String(b));
     },
 }
 
-nList.prototype.filterValues = function (values, columns, filterDefinition) {
+nList.prototype.filterValues = function(values, columns, filterDefinition) {
     var filteredValues = [];
     for (var i = 0; i < values.length; i++) {
         if (this.isValidWithFilters(values[i], columns, filterDefinition)) {
@@ -558,7 +551,7 @@ nList.prototype.filterValues = function (values, columns, filterDefinition) {
     return filteredValues;
 }
 
-nList.prototype.isValidWithFilters = function (row, columns, filterDefinition) {
+nList.prototype.isValidWithFilters = function(row, columns, filterDefinition) {
     for (var c = 0; c < columns.length; c++) {
         var column = columns[c].id;
         var columnFilter = filterDefinition[column];
@@ -578,7 +571,7 @@ nList.languages = {
     }
 };
 
-nList.prototype.getText = function (textCode) {
+nList.prototype.getText = function(textCode) {
     if (this._options.language == null || this._options.language === '')
         this._options.language = 'default';
 
