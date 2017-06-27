@@ -110,7 +110,9 @@ nList.prototype.createColumnHeader = function (tableid, columnDefinition) {
     if (columnDefinition.sortable) {
         column.classList.add('nList-sortable');
         column.innerHTML += '<span style="visibility: hidden" class="nList-sorting">&#9650;</span>'
-        this.loadSortInfo(column.nListColumn, columnDefinition.sortType, column);
+		if (columnDefinition.sortType === 'asc' || columnDefinition.sortType === 'desc') {
+			this.applySortSymbolToColumn(column, columnDefinition.sortType);
+		}
 
         column.addEventListener('click', function (event) {
             var columnInfo = event.currentTarget.nListColumn;
@@ -427,12 +429,6 @@ nList.prototype.sortBy = function (column, sortType, domColumn) {
 
     this._dataSettings.page = 1;
     this.loadData(this._options, this._dataSettings);
-}
-
-nList.prototype.loadSortInfo = function (column, sortType, domColumn) {
-    if (sortType === 'asc' || sortType === 'desc') {
-        this.applySortSymbolToColumn(domColumn, sortType);
-    }
 }
 
 nList.prototype.applySortSymbolToColumn = function (domColumn, sortType) {
