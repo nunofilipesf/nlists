@@ -212,11 +212,11 @@ nList.prototype.renderData = function (data) {
 
     if (dataToRender.length == 0) {
         var tableRow = document.createElement('tr');
-        var tableColumn = document.createElement('td'); tableColumn.colSpan = columns.length;
-
+        var tableColumn = document.createElement('td');
+        tableColumn.colSpan = columns.length;
         tableColumn.innerText = this.getText('NoRecords');
         tableColumn.style.textAlign = 'center';
-
+        tableRow.className = "nList-no-records-found";
         tableRow.appendChild(tableColumn);
         tableBody.appendChild(tableRow);
     }
